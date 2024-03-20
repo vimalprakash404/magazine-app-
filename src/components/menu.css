@@ -1,0 +1,134 @@
+.tool-bar{
+  position: fixed;
+  display: flex;
+  bottom: 0 ;
+  left: 0; 
+  right: 0 ;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.774);
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.menuData {
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
+}
+
+.menuSlider{
+    display: flex;
+    flex: 5;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+    margin-top: 9px;
+    margin-bottom: 9px;
+   
+}
+
+
+
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 2.5vh;
+  border-radius: 1.5vh;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 3.1vh;
+  height: 3.1vh;
+  border-radius: 50%;
+  background-image:  linear-gradient(45deg, #007bff, #00bfff);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #03b8ff;
+  cursor: pointer;
+}
+
+
+button {
+  margin : 1vh ;
+  margin-bottom: 2.5vh;
+  border-radius: 5vh; /* Rounded border */
+  width: 9vh; /* Adjust width */
+  height: 6vh; /* Adjust height */
+  background-color: transparent; /* Set background color to transparent */
+  color: #fff; /* White text */
+  font-size: 3vh; /* Slightly reduced font size */
+  /* Increased padding for better button appearance */
+  border: none; /* Removing border for a cleaner look */
+  cursor: pointer; /* Show pointer cursor on hover */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+  box-shadow: 0 0 10px rgb(0, 225, 255); /* Glow effect */
+  background-image: linear-gradient(45deg, #007bff, #00bfff); /* Blue gradient pattern */
+}
+
+button:disabled {
+  cursor: not-allowed; /* Show not-allowed cursor on hover */
+  opacity: 0.5; /* Reduce opacity for disabled effect */
+  box-shadow: none; /* Remove glow effect */
+  background-image: none; /* Remove gradient background */
+  background-color: #68686865; /* Gray background color for disabled state */
+  color: #e9e9e99a; /* Darker text color for disabled state */
+}
+button:hover :disabled {
+  box-shadow: 0 0 20px rgb(0, 225, 255); /* Increased glow on hover */
+}
+
+.page-count {
+  border-radius: 5vh;
+  
+ display: flex;
+  background: linear-gradient(135deg, #00ffff, #0501ff); /* Gradient background */
+  color: hsl(0, 0%, 100%); /* White text */
+  font-size: 2.5vh;
+  margin: 10px;
+  margin-bottom: 3vh;
+  padding: 10px 20px; /* Adjust padding as needed */
+  border: none; /* Removing border for a cleaner look */
+  cursor: pointer; /* Show pointer cursor on hover */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Smooth transitions */
+  box-shadow: 0 0 10px rgba(0, 183, 255, 0.3); /* Initial glow effect */
+}
+
+.page-count:hover {
+  background: linear-gradient(135deg,#0501ff, #00ffff); /* Gradient background on hover */
+  box-shadow: 0 0 30px  rgba(0, 183, 255, 0.822); /* Increased glow on hover */
+}
+
+
+/* Slider Tooltip */
+.slider-tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.733);
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 20px;
+  pointer-events: none; /* Ensures the tooltip doesn't interfere with mouse events */
+  transform: translate(-50%, -100%); /* Position the tooltip above the slider thumb */
+  white-space: nowrap; /* Prevent tooltip text from wrapping */
+}
+
+/* Styling for slider track and thumb */

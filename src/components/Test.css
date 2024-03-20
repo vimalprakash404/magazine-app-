@@ -1,0 +1,25 @@
+.test-container {
+  display: flex;
+  justify-content: center; /* Horizontally center content */
+  height: 100vh; /* Take up full viewport height */
+}
+
+.centered-container {
+  width: 100%; /* Ensure full width */
+  max-width: 1200px; /* Set maximum width */
+  padding: 0 20px; /* Add padding for better spacing */
+}
+
+.center-document {
+ font-family: 'Courier New', Courier, monospace; /* Horizontally center content */
+}
+
+.container {
+  position: relative;
+}
+
+/* Add any other necessary styling for your components */
+
+body{
+  background-color: rgb(56, 52, 52);
+}

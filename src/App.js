@@ -1,25 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import Test from './components/PDFFlipbook';
+import React from 'react';
+import {  Routes, Route, BrowserRouter } from 'react-router-dom';
 
-function App() {
+// Define a component to display the PDF
+const PdfViewer = () => {
+  // Access the URL parameter using useParams hook
+  const urlParams = new URLSearchParams(window.location.search);
+  const pdfUrl = urlParams.get('pdfUrl');
+  const mainUrl=  "/api/pdf?url="; 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <Test url={mainUrl+pdfUrl}/>
   );
-}
+};
+
+// Define your main App component
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="pdf/" element={<PdfViewer/>}/>
+      </Routes>
+   
+    </BrowserRouter>
+  );
+};
 
 export default App;
