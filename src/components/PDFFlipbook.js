@@ -50,7 +50,7 @@ function Test({url}) {
   const size = (windowHeight - 375) / 19;
   const [width, setWidth] = useState(15 * size);
   const [height, setHeight] = useState(19 * size);
-
+  const  draggableRef = useRef(null) ;
   useEffect(() => {
     const handleResize = () => {
       const newSize = (window.innerHeight - 200) / 19;
@@ -155,6 +155,42 @@ function Test({url}) {
     console.log("progress",data["loaded"]/data["total"]);
     setProgressValue(data["loaded"]/data["total"]*100);
   }
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const { key } = event;
+      const distance = 15; // Adjust the distance to move on each key press
+
+      if (!draggableRef.current) return;
+
+      const { x, y } = draggableRef.current.state;
+
+      switch (key) {
+        case 'ArrowUp':
+          draggableRef.current.setState({ y: y - distance });
+          break;
+        case 'ArrowDown':
+          draggableRef.current.setState({ y: y + distance });
+          break;
+        case 'ArrowLeft':
+          draggableRef.current.setState({ x: x - distance });
+          break;
+        case 'ArrowRight':
+          draggableRef.current.setState({ x: x + distance });
+          break;
+        default:
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+
   return (
     <div className={isMobile ? "" : "test-container"}>
      
@@ -162,7 +198,7 @@ function Test({url}) {
       { loaderHider === false &&  <Loader progress={progressValue}/>}
         <Document file={url} onLoadProgress={onProgress} onLoadSuccess={onDocumentLoadSuccess} className={isMobile ? "" : "center-document"}>
           {documentLoaded && (
-            <Draggable >
+            <Draggable  ref={draggableRef}>
               <div>
                 <div ref={containerRef} className="container">
                   <HTMLFlipBook
