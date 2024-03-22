@@ -189,16 +189,19 @@ function Test({url}) {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-
-
+  const handleClick = () => {
+    setToolBarHider(true);
+    
+  }
+  const [toolbarHider, setToolBarHider ] = useState(false)
   return (
     <div className={isMobile ? "" : "test-container"}>
      
       <div className={isMobile ? "" : "centered-container"}>
       { loaderHider === false &&  <Loader progress={progressValue}/>}
-        <Document file={url} onLoadProgress={onProgress} onLoadSuccess={onDocumentLoadSuccess} className={isMobile ? "" : "center-document"}>
+        <Document file={url} onLoadProgress={onProgress} onLoadSuccess={onDocumentLoadSuccess} className={isMobile ? "" : "center-document"} onClick={handleClick}>
           {documentLoaded && (
-            <Draggable  ref={draggableRef}>
+            <Draggable  ref={draggableRef} onClick={handleClick}>
               <div>
                 <div ref={containerRef} className="container">
                   <HTMLFlipBook
@@ -208,11 +211,12 @@ function Test({url}) {
                     showCover={true}
                     className="book"
                     ref={pageFlipRef}
-                    autoSize={true}
+                    autoSize={false}
                     minWidth={100}
                     minHeight={100}
                     onFlip={onPageChange}
                     useMouseEvents={false}
+                    renderOnlyPageLengthChange={true}
                   >
                     {numPages &&
                       Array.from(Array(pageBuffer), (e, i) => {
@@ -227,7 +231,7 @@ function Test({url}) {
         </Document>
       </div>
       {loaderHider=== true && (
-        <div className="tool-bar">
+        <div className={`tool-bar ${toolbarHider === true && "tool-bar-hidden"}`} >
         <div className="menuSlider">
           <input
             type="range"
@@ -253,7 +257,7 @@ function Test({url}) {
           )}
 
         </div>
-        <div className="menuData">
+        <div className="menuData" >
           <div className="page-count">
             <span style={{ fontWeight: "bold" }}>{currentPage}</span> / <span>{numPages}</span>
           </div>

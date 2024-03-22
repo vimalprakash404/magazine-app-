@@ -8,10 +8,20 @@
   background-color: rgba(0, 0, 0, 0.774);
   border-radius: 10px;
   margin: 10px;
+ 
 }
+
+.tool-bar-hidden{
+  opacity: 0; 
+}
+.tool-bar:hover {
+  opacity: 1;
+}
+
 
 .menuData {
   display: flex;
+  
   justify-content: center; /* Horizontally center */
   align-items: center; /* Vertically center */
 }
