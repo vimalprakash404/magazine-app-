@@ -8,7 +8,7 @@ import "./Test.css";
 import "./menu.css";
 import useIsMobile from "./useIsMobile";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight , faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Loader from "./Loader";
 import "./sideButton.css"
 
@@ -24,7 +24,7 @@ const Page = React.forwardRef(({ pageNumber, width }, ref) => {
 
 
 
-function Test({url}) {
+function Test({ url }) {
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [documentLoaded, setDocumentLoaded] = useState(false);
@@ -35,8 +35,8 @@ function Test({url}) {
   const pageFlipRef = useRef(null);
   const containerRef = useRef(null);
   const isMobile = useIsMobile();
-  const  draggableRef = useRef(null) ;
- 
+  const draggableRef = useRef(null);
+
 
 
   const incrementBuffer = () => {
@@ -67,7 +67,7 @@ function Test({url}) {
       pageFlipRef.current.pageFlip().flipPrev();
     }
   };
-  
+
   const handleChangePage = (value) => {
     if (value >= 1 && value <= numPages) {
       setCurrentPage(value);
@@ -81,7 +81,7 @@ function Test({url}) {
     setSliderValue(value);
     handleChangePage(value);
   };
-  
+
 
   const handleSliderMouseMove = (event) => {
     const sliderRect = event.currentTarget.getBoundingClientRect();
@@ -92,7 +92,7 @@ function Test({url}) {
 
     const thumbPositionX = sliderLeft + thumbPositionRatio * sliderWidth;
     const tooltipLeft = thumbPositionX;
-   
+
     setTooltipPosition({ left: tooltipLeft, top: 0, visible: true });
   };
 
@@ -124,11 +124,11 @@ function Test({url}) {
       containerRef.current.style.transformOrigin = "0 0"; // Ensure proper scaling origin
     }
   }, [zoomLevel]);
-  const [loaderHider , setLoaderHider] =  useState(false)
-  const [progressValue, setProgressValue] =  useState(0)
-  const onProgress =(data) =>{
-    console.log("progress",data["loaded"]/data["total"]);
-    setProgressValue(data["loaded"]/data["total"]*100);
+  const [loaderHider, setLoaderHider] = useState(false)
+  const [progressValue, setProgressValue] = useState(0)
+  const onProgress = (data) => {
+    console.log("progress", data["loaded"] / data["total"]);
+    setProgressValue(data["loaded"] / data["total"] * 100);
   }
 
   useEffect(() => {
@@ -166,17 +166,17 @@ function Test({url}) {
   }, []);
   const handleClick = () => {
     setToolBarHider(true);
-    
+
   }
-  const [toolbarHider, setToolBarHider ] = useState(false)
+  const [toolbarHider, setToolBarHider] = useState(false)
   return (
     <div className={isMobile ? "" : "test-container"}>
-     
+
       <div className={isMobile ? "" : "centered-container"}>
-      { loaderHider === false &&  <Loader progress={progressValue}/>}
+        {loaderHider === false && <Loader progress={progressValue} />}
         <Document file={url} onLoadProgress={onProgress} onLoadSuccess={onDocumentLoadSuccess} className={isMobile ? "" : "center-document"} onClick={handleClick}>
           {documentLoaded && (
-            <Draggable  ref={draggableRef} onClick={handleClick}>
+            <Draggable ref={draggableRef} onClick={handleClick}>
               <div>
                 <div ref={containerRef} className="container">
                   <HTMLFlipBook
@@ -205,66 +205,69 @@ function Test({url}) {
           )}
         </Document>
       </div>
-      {loaderHider=== true && (
-        <div className={`tool-bar ${toolbarHider === true && "tool-bar-hidden"}`} >
-        <div className="menuSlider">
-          <input
-            type="range"
-            min={1}
-            max={numPages}
-            value={sliderValue}
-            onChange={handleSliderChange}
-            onMouseUp={handleSliderChange}
-            onTouchEnd={handleSliderChange}
-            onMouseMove={handleSliderMouseMove}
-            onTouchMove={handleSliderMouseMove}
-            onMouseLeave={handleSliderMouseLeave}
-            onTouchCancel={handleSliderMouseLeave}
-            style={{ width: "70%" }}
-            className="slider"
-          />
+      {loaderHider === true && (
+        <>
+          <div className={`tool-bar ${toolbarHider === true && "tool-bar-hidden"}`} >
+            <div className="menuSlider">
+              <input
+                type="range"
+                min={1}
+                max={numPages}
+                value={sliderValue}
+                onChange={handleSliderChange}
+                onMouseUp={handleSliderChange}
+                onTouchEnd={handleSliderChange}
+                onMouseMove={handleSliderMouseMove}
+                onTouchMove={handleSliderMouseMove}
+                onMouseLeave={handleSliderMouseLeave}
+                onTouchCancel={handleSliderMouseLeave}
+                style={{ width: "70%" }}
+                className="slider"
+              />
 
-          {tooltipPosition.visible && (
-            <div className="slider-tooltip" style={{ left: tooltipPosition.left, top: tooltipPosition.top }}>
-              {sliderValue}
-              
+              {tooltipPosition.visible && (
+                <div className="slider-tooltip" style={{ left: tooltipPosition.left, top: tooltipPosition.top }}>
+                  {sliderValue}
+
+                </div>
+              )}
+
             </div>
-          )}
+            <div className="menuData" >
+              <div className="page-count">
+                <span style={{ fontWeight: "bold" }}>{currentPage}</span> / <span>{numPages}</span>
+              </div>
 
-        </div>
-        <div className="menuData" >
-          <div className="page-count">
-            <span style={{ fontWeight: "bold" }}>{currentPage}</span> / <span>{numPages}</span>
+              <button className="btn btn-primary" onClick={goToPreviousPage} disabled={currentPage === 1}>
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+
+
+              <button className="btn btn-primary" onClick={goToNextPage} disabled={currentPage === numPages}>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </button>
+              <div></div>
+
+              <button className="btn btn-primary" onClick={zoomIn} disabled={zoomLevel === 2 ? true : false}>
+                <FontAwesomeIcon icon={faSearchPlus} />
+              </button>
+              <button className="btn btn-primary" onClick={zoomOut} disabled={zoomLevel === 1 ? true : false} >
+                <FontAwesomeIcon icon={faSearchMinus} />
+              </button>
+
+            </div>
           </div>
-
-          <button className="btn btn-primary" onClick={goToPreviousPage} disabled={currentPage === 1}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-          </button>
-
-
-          <button className="btn btn-primary" onClick={goToNextPage} disabled={currentPage === numPages}>
-            <FontAwesomeIcon icon={faArrowRight} />
-          </button>
-          <div></div>
-
-          <button className="btn btn-primary" onClick={zoomIn} disabled={zoomLevel===2 ? true : false}>
-            <FontAwesomeIcon icon={faSearchPlus} />
-          </button>
-          <button className="btn btn-primary" onClick={zoomOut} disabled={zoomLevel===1 ? true : false} >
-            <FontAwesomeIcon icon={faSearchMinus} />
-          </button>
-
-        </div>
-      </div>
-      )}
-      <div>
+          <div>
             <div className="side-button side-button-left" onClick={goToPreviousPage} >
-              <FontAwesomeIcon className="sideButtonIcon" icon={faCircleArrowLeft}/>
+              <FontAwesomeIcon className="sideButtonIcon" icon={faCircleArrowLeft} />
             </div>
             <div className="side-button side-button-right" onClick={goToNextPage} >
-              <FontAwesomeIcon  className="sideButtonIcon" icon={faCircleArrowRight}/>
+              <FontAwesomeIcon className="sideButtonIcon" icon={faCircleArrowRight} />
             </div>
-      </div>
+          </div>
+        </>
+      )}
+
     </div>
   );
 }
