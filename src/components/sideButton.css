@@ -1,0 +1,32 @@
+.side-button{
+    position: fixed;
+    display: flex;
+    top: 30vh;
+    height: 20vh;
+    width: 10vh;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.774);
+    border-radius: 10px;
+    margin: 10px;
+    color: beige;
+    align-items: center;
+    opacity: 0;
+    transition: opacity .5s;
+  }
+
+  .side-button:hover{
+    opacity: 1;
+  }
+
+  .side-button-left{
+    left: 0;
+  }
+
+  .side-button-right{
+    right: 0;
+  }
+
+.sideButtonIcon{
+  margin: auto;
+  font-size: 5vh;
+}

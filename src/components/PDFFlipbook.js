@@ -8,8 +8,9 @@ import "./Test.css";
 import "./menu.css";
 import useIsMobile from "./useIsMobile";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight , faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Loader from "./Loader";
+import "./sideButton.css"
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -21,19 +22,7 @@ const Page = React.forwardRef(({ pageNumber, width }, ref) => {
   );
 });
 
-const useWindowHeight = () => {
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowHeight(window.innerHeight);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return windowHeight;
-};
 
 function Test({url}) {
   const [numPages, setNumPages] = useState(null);
@@ -46,22 +35,9 @@ function Test({url}) {
   const pageFlipRef = useRef(null);
   const containerRef = useRef(null);
   const isMobile = useIsMobile();
-  const windowHeight = useWindowHeight();
-  const size = (windowHeight - 375) / 19;
-  const [width, setWidth] = useState(15 * size);
-  const [height, setHeight] = useState(19 * size);
   const  draggableRef = useRef(null) ;
-  useEffect(() => {
-    const handleResize = () => {
-      const newSize = (window.innerHeight - 200) / 19;
-      const newWidth = 15 * newSize;
-      const newHeight = 19 * newSize;
-      setWidth(newWidth);
-      setHeight(newHeight);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+ 
+
 
   const incrementBuffer = () => {
     if (pageBuffer + 4 >= numPages) {
@@ -74,7 +50,7 @@ function Test({url}) {
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setDocumentLoaded(true);
-    setLoaderHider(true)
+    setLoaderHider(true);
   };
 
   const goToNextPage = () => {
@@ -91,10 +67,11 @@ function Test({url}) {
       pageFlipRef.current.pageFlip().flipPrev();
     }
   };
-
+  
   const handleChangePage = (value) => {
     if (value >= 1 && value <= numPages) {
       setCurrentPage(value);
+      setSliderValue(value);
       pageFlipRef.current.pageFlip().turnToPage(Number(value));
     }
   };
@@ -102,11 +79,9 @@ function Test({url}) {
   const handleSliderChange = (event) => {
     const value = parseInt(event.target.value, 10);
     setSliderValue(value);
-    if (event.type === "change") {
-      return;
-    }
     handleChangePage(value);
   };
+  
 
   const handleSliderMouseMove = (event) => {
     const sliderRect = event.currentTarget.getBoundingClientRect();
@@ -216,7 +191,7 @@ function Test({url}) {
                     minHeight={100}
                     onFlip={onPageChange}
                     useMouseEvents={false}
-                    renderOnlyPageLengthChange={true}
+                    renderOnlyPageLengthChange={false}
                   >
                     {numPages &&
                       Array.from(Array(pageBuffer), (e, i) => {
@@ -282,7 +257,14 @@ function Test({url}) {
         </div>
       </div>
       )}
-
+      <div>
+            <div className="side-button side-button-left" onClick={goToPreviousPage} >
+              <FontAwesomeIcon className="sideButtonIcon" icon={faCircleArrowLeft}/>
+            </div>
+            <div className="side-button side-button-right" onClick={goToNextPage} >
+              <FontAwesomeIcon  className="sideButtonIcon" icon={faCircleArrowRight}/>
+            </div>
+      </div>
     </div>
   );
 }

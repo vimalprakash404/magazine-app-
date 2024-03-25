@@ -8,7 +8,7 @@ const PdfViewer = () => {
   // Access the URL parameter using useParams hook
   const urlParams = new URLSearchParams(window.location.search);
   const pdfUrl = urlParams.get('pdfUrl');
-  const mainUrl=  "/api/pdf?url="; 
+  const mainUrl=  "http://localhost:3001/api/pdf?url="; 
   return (
    <Test url={mainUrl+pdfUrl}/>
   );
