@@ -8,7 +8,7 @@ import "./Test.css";
 import "./menu.css";
 import useIsMobile from "./useIsMobile";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight, faCircleArrowLeft  ,faExpand , faMinimize} from '@fortawesome/free-solid-svg-icons';
 import Loader from "./Loader";
 import "./sideButton.css"
 
@@ -38,7 +38,26 @@ function Test({ url }) {
   const draggableRef = useRef(null);
 
 
-
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsFullScreen(true);
+      }).catch(err => {
+        console.error('Error attempting to enable full-screen mode:', err.message);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullScreen(false);
+      }).catch(err => {
+        console.error('Error attempting to exit full-screen mode:', err.message);
+      });
+    }
+  };
+ /* 
+  function to  toggle to full screen 
+ 
+ */
   const incrementBuffer = () => {
     if (pageBuffer + 4 >= numPages) {
       setPageBuffer(numPages);
@@ -121,7 +140,7 @@ function Test({ url }) {
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.style.transform = `scale(${zoomLevel})`;
-      containerRef.current.style.transformOrigin = "0 0"; // Ensure proper scaling origin
+      containerRef.current.style.transformOrigin = "0 5"; // Ensure proper scaling origin
     }
   }, [zoomLevel]);
   const [loaderHider, setLoaderHider] = useState(false)
@@ -254,7 +273,12 @@ function Test({ url }) {
               <button className="btn btn-primary" onClick={zoomOut} disabled={zoomLevel === 1 ? true : false} >
                 <FontAwesomeIcon icon={faSearchMinus} />
               </button>
-
+              <div className={isFullScreen ? 'full-screen' : ''}>
+                <button onClick={toggleFullScreen}>
+                  {isFullScreen ? <FontAwesomeIcon icon={faMinimize}/> :<FontAwesomeIcon icon={faExpand}/>}
+                </button>
+                {/* Your content goes here */}
+              </div>
             </div>
           </div>
           <div>
