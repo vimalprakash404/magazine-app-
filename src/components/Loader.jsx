@@ -13,7 +13,10 @@ function Loader({ progress }) {
     };
     return (
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-                <Lottie options={bookLoadAnimations} height={"500px"} width={"500px"} isClickToPauseDisabled={true} />
+             <div >
+             <Lottie options={bookLoadAnimations} height={"500px"} width={"500px"} isClickToPauseDisabled={true} />
+             </div>
+                
             <div style={{ width: "70%", margin: "auto" ,marginTop:0}}>
                 <LinearProgress variant="determinate" value={progress} />
             </div>

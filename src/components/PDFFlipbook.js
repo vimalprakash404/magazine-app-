@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faSearchPlus, faSearchMinus, faCircleArrowRight, faCircleArrowLeft  ,faExpand , faMinimize} from '@fortawesome/free-solid-svg-icons';
 import Loader from "./Loader";
 import "./sideButton.css"
+import { isMobile as isMob, isTablet, isBrowser } from 'react-device-detect';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -185,9 +186,11 @@ function Test({ url }) {
   }, []);
   const handleClick = () => {
     setToolBarHider(true);
-
   }
   const [toolbarHider, setToolBarHider] = useState(false)
+
+  const width = isBrowser ? 600 : isTablet  ? 500 : isMob ? 350 : 600 ;
+  const hight =    isBrowser ? 700 : isTablet  ? 500 : isMob ? 500 : 700 ;
   return (
     <div className={isMobile ? "" : "test-container"}>
 
@@ -199,8 +202,8 @@ function Test({ url }) {
               <div>
                 <div ref={containerRef} className="container">
                   <HTMLFlipBook
-                    width={600}
-                    height={700}
+                    width={width}
+                    height={hight}
                     maxShadowOpacity={0.2}
                     showCover={true}
                     className="book"
@@ -215,7 +218,7 @@ function Test({ url }) {
                     {numPages &&
                       Array.from(Array(pageBuffer), (e, i) => {
                         const pageNum = i + 1;
-                        return <Page key={pageNum} pageNumber={pageNum} width={600} />;
+                        return <Page key={pageNum} pageNumber={pageNum} width={width} />;
                       })}
                   </HTMLFlipBook>
                 </div>
