@@ -1,7 +1,9 @@
 // App.js
 import Test from './components/PDFFlipbook';
 import React from 'react';
+import MobileView  from "./components/MobileView";
 import {  Routes, Route, BrowserRouter } from 'react-router-dom';
+import { isMobile as isMob, isTablet } from 'react-device-detect';
 
 // Define a component to display the PDF
 const PdfViewer = () => {
@@ -9,9 +11,20 @@ const PdfViewer = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const pdfUrl = urlParams.get('pdfUrl');
   const mainUrl=  "/api/pdf?url="; 
-  return (
-   <Test url={mainUrl+pdfUrl}/>
-  );
+  if (isMob) {
+    return <MobileView url={mainUrl+pdfUrl}/>
+  }
+  else if (isTablet){
+    return <MobileView url={mainUrl+pdfUrl}/>
+  }
+  else {
+    return <Test url={mainUrl+pdfUrl}/>
+  }
+  //return (
+  //  <Test url={pdfUrl}/>
+  //{isMob ? <MobileView url={pdfUrl}/> : isTablet ?  <MobileView url={pdfUrl}/> : <Test url={pdfUrl}/> }
+ 
+  //);
 };
 
 // Define your main App component
