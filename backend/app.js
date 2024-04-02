@@ -7,6 +7,7 @@ const app = express();
 const PORT = 4000; 
 
 app.use(cors())
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/pdf', async(req , res )=>{
     const pdfUrl = req.query.url ;
@@ -27,7 +28,7 @@ app.get('/api/pdf', async(req , res )=>{
 });
 
 app.get("/api/magazine",(req, res)=>{
-    const  pdfPath   = path.join(__dirname , "../pdf.pdf");
+    const  pdfPath   = path.join(__dirname , "./public/pdf.pdf");
     fs.readFile(pdfPath, (err, data) => {
         if (err) {
             console.error(err);
