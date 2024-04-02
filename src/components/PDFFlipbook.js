@@ -95,7 +95,7 @@ function Test({ url }) {
       pageFlipRef.current.pageFlip().turnToPage(Number(value));
     }
   };
-
+  
   const handleSliderChange = (event) => {
     const value = parseInt(event.target.value, 10);
     setSliderValue(value);

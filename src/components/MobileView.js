@@ -253,16 +253,16 @@ function MobileView({ url }) {
         setZoomLevel(state["scale"]);
         console.log("create zooming",JSON.stringify(state))
     }
-    const width = isBrowser ? 600 : isTablet ? 500 : isMob ? 350 : 600;
-    const hight = isBrowser ? 700 : isTablet ? 500 : isMob ? 500 : 700;
+    const width = isBrowser ? 600 : isTablet ? 500 : isMob ? window.innerWidth : 600;
+    const hight = isBrowser ? 700 : isTablet ? 500 : isMob ? window.innerHeight : 700;
     return (
         <TransformWrapper onTransformed={onZoomer} limitToBounds={false}>
 
-            <div className={isMobile ? "" : "test-container"}>
-
-                <div className={isMobile ? "" : "centered-container"}>
+            <div className={isMobile ? "" : "test-container"} >
+            <TransformComponent>
+                <div className={isMobile ? "" : "centered-container"} style={{width:width, height:hight}}>
                     {loaderHider === false && <Loader progress={progressValue} />}
-                    <TransformComponent>
+                   
                         <Document file={url} onLoadProgress={onProgress} onLoadSuccess={onDocumentLoadSuccess} className={isMobile ? "" : "center-document"} onClick={handleClick}>
                             {documentLoaded && (
                                 //  <Draggable ref={draggableRef} onClick={handleClick}>
@@ -271,7 +271,7 @@ function MobileView({ url }) {
                                     <div ref={containerRef} className="container">
                                         <HTMLFlipBook
                                             width={width}
-                                            height={hight}
+                                            height={1000}
                                             maxShadowOpacity={0.2}
                                             showCover={true}
                                             className="book"
@@ -294,8 +294,9 @@ function MobileView({ url }) {
 
                             )}
                         </Document>
-                    </TransformComponent>
+                    
                 </div>
+                </TransformComponent>
                 {loaderHider === true && <Controls/>}
 
             </div>

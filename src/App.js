@@ -20,11 +20,6 @@ const PdfViewer = () => {
   else {
     return <Test url={mainUrl+pdfUrl}/>
   }
-  //return (
-  //  <Test url={pdfUrl}/>
-  //{isMob ? <MobileView url={pdfUrl}/> : isTablet ?  <MobileView url={pdfUrl}/> : <Test url={pdfUrl}/> }
- 
-  //);
 };
 
 // Define your main App component
