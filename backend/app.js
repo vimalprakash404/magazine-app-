@@ -36,7 +36,7 @@ app.get("/api/magazine",(req, res)=>{
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'inline; filename=sample.pdf');
-        res.send(data);
+        res.sendFile(pdfPath);
     });
 })
 
