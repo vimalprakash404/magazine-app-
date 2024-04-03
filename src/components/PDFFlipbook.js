@@ -100,6 +100,15 @@ function Test({ url }) {
     const value = parseInt(event.target.value, 10);
     setSliderValue(value);
     handleChangePage(value);
+    if (value > pageBuffer){
+      if(value+4 >= numPages){
+        setPageBuffer(numPages);
+      }
+      else {
+        setPageBuffer(value);
+      }
+    }
+    
   };
 
 
@@ -216,7 +225,7 @@ function Test({ url }) {
                     renderOnlyPageLengthChange={false}
                   >
                     {numPages &&
-                      Array.from(Array(pageBuffer), (e, i) => {
+                      Array.from(Array(numPages), (e, i) => {
                         const pageNum = i + 1;
                         return <Page key={pageNum} pageNumber={pageNum} width={width} />;
                       })}

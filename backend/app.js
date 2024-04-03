@@ -7,7 +7,7 @@ const app = express();
 const PORT = 4003; 
 
 app.use(cors())
-app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.get('/api/pdf', async(req , res )=>{
     const pdfUrl = req.query.url ;
@@ -17,7 +17,7 @@ app.get('/api/pdf', async(req , res )=>{
     try {
         const fetch = await import('node-fetch')
         const response = await fetch.default(pdfUrl);
-        const buffer = await response.buffer()
+        const buffer = await response.buffer();
         res.set('Content-Type', 'application/pdf');
         res.send(buffer);
     }
@@ -26,7 +26,7 @@ app.get('/api/pdf', async(req , res )=>{
         res.status(500).send("Error fetching PDF" )
     }
 });
-
+app.use(express.static(path.join(__dirname, 'public')));
 app.get("/api/magazine/:name",(req, res)=>{
     const name  = req.params.name; 
     const  pdfPath   = path.join(__dirname , `./public/${name}.pdf`);
