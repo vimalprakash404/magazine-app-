@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs');
 
 const app = express();
-const PORT = 4000; 
+const PORT = 4003; 
 
 app.use(cors())
 app.use(express.static(path.join(__dirname, 'public')));
@@ -27,8 +27,10 @@ app.get('/api/pdf', async(req , res )=>{
     }
 });
 
-app.get("/api/magazine",(req, res)=>{
-    const  pdfPath   = path.join(__dirname , "./public/pdf.pdf");
+app.get("/api/magazine/:name",(req, res)=>{
+    const name  = req.params.name; 
+    const  pdfPath   = path.join(__dirname , `./public/${name}.pdf`);
+
     fs.readFile(pdfPath, (err, data) => {
         if (err) {
             console.error(err);
