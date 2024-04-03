@@ -8,6 +8,7 @@
   width: 100%; /* Ensure full width */
   max-width: 1200px; /* Set maximum width */
   padding: 0 20px; /* Add padding for better spacing */
+  margin : auto ;
 }
 
 .center-document {

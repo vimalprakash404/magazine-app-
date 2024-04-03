@@ -190,7 +190,7 @@ function Test({ url }) {
   const [toolbarHider, setToolBarHider] = useState(false)
 
   const width = isBrowser ? 600 : isTablet  ? 500 : isMob ? 350 : 600 ;
-  const hight =    isBrowser ? 700 : isTablet  ? 500 : isMob ? 500 : 700 ;
+  const hight =    isBrowser ? 800 : isTablet  ? 500 : isMob ? 500 : 700 ;
   return (
     <div className={isMobile ? "" : "test-container"}>
 
