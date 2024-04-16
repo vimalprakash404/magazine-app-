@@ -256,7 +256,7 @@ function MobileView({ url }) {
     const width = isBrowser ? 600 : isTablet ? 500 : isMob ? window.innerWidth : 600;
     const hight = isBrowser ? 700 : isTablet ? 500 : isMob ? window.innerHeight : 700;
     return (
-        <TransformWrapper onTransformed={onZoomer} limitToBounds={false} centerZoomedOut={false} initialPositionY={100}>
+        <TransformWrapper onTransformed={onZoomer} limitToBounds={false} centerZoomedOut={false} initialPositionY={100} disabled={!loaderHider}>
 
             <div className={isMobile ? "" : "test-container"} >
             <TransformComponent>
