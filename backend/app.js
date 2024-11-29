@@ -5,8 +5,33 @@ const fs = require('fs');
 
 const app = express();
 const PORT = 4003; 
+require('dotenv').config();
 
 app.use(cors())
+
+function extractDomain(url) {
+    try{ 
+        const domain = new URL(url).hostname; 
+        return domain ; 
+    }
+    catch(error){
+        console.error("Invalid URl: " , error) ; 
+        return null;
+    }
+}
+
+
+app.get("/api/check-whitelisted/", (req, res)=>{
+    // console.log("check-whitelisted" , req.query.url);
+    const whiteListedDomains = process.env.WHITE_LISTED_DOMAINS.split(",");
+    const domain = extractDomain(req.query.url);
+    console.log("domain" , domain);
+    // console.log("whiteListedDomains" , whiteListedDomains);
+    if(whiteListedDomains.includes(domain)){
+        return res.status(200).send("Domain is white listed" )
+    }
+    return res.status(400).send("Domain is not white listed");
+})
 
 
 app.get('/api/pdf', async(req , res )=>{
@@ -15,6 +40,15 @@ app.get('/api/pdf', async(req , res )=>{
 
     }
     try {
+        console.log("Fetching Pdf  ", pdfUrl );
+        //get dom
+        console.log("Fetching domain pdf   ", extractDomain(pdfUrl) );
+        const whiteListedDomains = process.env.WHITE_LISTED_DOMAINS
+        if (!whiteListedDomains.includes(extractDomain(pdfUrl))){
+            console.log("Domain not white listed  ", extractDomain(pdfUrl) );
+            return res.status(400).send("Domain not white listed" )
+        }
+        console.log("whiteListedDomains  ", whiteListedDomains );
         const fetch = await import('node-fetch')
         const response = await fetch.default(pdfUrl);
         const buffer = await response.buffer();
