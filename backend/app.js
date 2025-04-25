@@ -26,8 +26,9 @@ app.get("/api/check-whitelisted/", (req, res)=>{
     const whiteListedDomains = process.env.WHITE_LISTED_DOMAINS.split(",");
     const domain = extractDomain(req.query.url);
     console.log("domain" , domain);
-    // console.log("whiteListedDomains" , whiteListedDomains);
+    console.log("whiteListedDomains" , whiteListedDomains);
     if(whiteListedDomains.includes(domain)){
+        console.log("Domain is white listed" , domain);
         return res.status(200).send("Domain is white listed" )
     }
     return res.status(400).send("Domain is not white listed");
