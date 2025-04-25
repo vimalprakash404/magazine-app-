@@ -211,7 +211,7 @@ function Test({ url }) {
               <div>
                 <div ref={containerRef} className="container">
                   <HTMLFlipBook
-                    width={width}
+                    width={numPages === 1 ? width / 2 : width} // if numPage is 1 set width to width/2
                     height={hight}
                     maxShadowOpacity={0.2}
                     showCover={true}
