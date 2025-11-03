@@ -127,21 +127,40 @@ app.get('/api/pdf', async (req, res) => {
 
         const fetch = await import('node-fetch');
         console.log("Attempting to fetch PDF from:", decodedPdfUrl);
-        // Create URL object to properly encode the URL while preserving special characters
-        const urlObject = new URL(decodedPdfUrl);
-        console.log("Attempting to fetch with encoded URL:", urlObject.href);
         
-        const response = await fetch.default(urlObject.href, {
+        // Manually encode the URL while preserving certain characters
+        const encodedUrl = decodedPdfUrl
+            .replace(/%20/g, ' ')  // decode spaces first
+            .replace(/&/g, '%26')  // encode ampersands
+            .replace(/ /g, '%20'); // re-encode spaces
+            
+        console.log("Attempting to fetch with encoded URL:", encodedUrl);
+        
+        const response = await fetch.default(encodedUrl, {
             timeout: 30000, // 30 second timeout for PDFs since they can be large
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-                'Accept': 'application/pdf,*/*'
-            }
+                'Accept': 'application/pdf,*/*',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            redirect: 'follow',  // follow any redirects
+            follow: 5  // follow up to 5 redirects
         });
 
         if (!response.ok) {
             console.error(`Failed to fetch PDF, status: ${response.status}`);
-            return res.status(502).send(`Failed to fetch PDF: ${response.statusText}`);
+            console.error('Response headers:', [...response.headers.entries()]);
+            console.error('Final URL after redirects:', response.url);
+            
+            let errorMessage = `Failed to fetch PDF: ${response.statusText}`;
+            if (response.status === 403) {
+                errorMessage = "Access denied. The server refused to provide the PDF.";
+            } else if (response.status === 404) {
+                errorMessage = "PDF file not found on the server.";
+            }
+            
+            return res.status(502).send(errorMessage);
         }
 
         // ✅ Check if response is a PDF
