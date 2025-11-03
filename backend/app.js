@@ -29,6 +29,9 @@ app.get("/api/check-whitelisted/", async (req, res) => {
       return res.status(400).send("Bad Request: 'url' query parameter is missing.");
     }
 
+    // Decode the URL parameter
+    const decodedUrl = decodeURIComponent(urlToCheck);
+
     // --- 2. Check Whitelist First ---
     // Get whitelist from env, provide a fallback empty string, and split into an array
     const whiteListedDomains = (process.env.WHITE_LISTED_DOMAINS || "").split(",");
@@ -36,7 +39,7 @@ app.get("/api/check-whitelisted/", async (req, res) => {
     // Clean up whitespace from .env entries
     const trimmedWhiteList = whiteListedDomains.map(d => d.trim()).filter(d => d.length > 0);
 
-    const domain = extractDomain(urlToCheck);
+    const domain = extractDomain(decodedUrl);
 
     if (!domain) {
       return res.status(400).send("Bad Request: Invalid URL format.");
@@ -52,16 +55,29 @@ app.get("/api/check-whitelisted/", async (req, res) => {
 
     console.log("Domain is whitelisted:", domain);
 
-    // --- 3. If Whitelisted, Check Content-Type (using HEAD) ---
+    // --- 3. If Whitelisted, Check Content-Type (using GET instead of HEAD) ---
     const fetch = await import('node-fetch');
+    let response;
     
-    // Use a HEAD request for efficiency. We only need the headers, not the whole file.
-    const response = await fetch.default(urlToCheck, { method: 'HEAD' });
+    // Some servers might not support HEAD requests properly, so let's use GET
+    try {
+        console.log("Attempting to fetch URL:", decodedUrl);
+        response = await fetch.default(decodedUrl, {
+            method: 'GET',
+            timeout: 10000, // 10 second timeout
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            }
+        });
 
-    if (!response.ok) {
-        // Handle cases where the URL is valid but leads to an error (404, 500, etc.)
-        console.log(`Failed to fetch headers, status: ${response.status}`);
-        return res.status(502).send(`Bad Gateway: Upstream server returned status ${response.status}`);
+        if (!response.ok) {
+            // Handle cases where the URL is valid but leads to an error (404, 500, etc.)
+            console.log(`Failed to fetch, status: ${response.status}`);
+            return res.status(502).send(`Bad Gateway: Upstream server returned status ${response.status}`);
+        }
+    } catch (fetchError) {
+        console.error("Error fetching URL:", fetchError.message);
+        return res.status(502).send(`Bad Gateway: ${fetchError.message}`);
     }
 
     const contentType = response.headers.get("content-type");
@@ -89,22 +105,35 @@ app.get("/api/check-whitelisted/", async (req, res) => {
 app.get('/api/pdf', async (req, res) => {
     const pdfUrl = req.query.url;
     if (!pdfUrl) {
-
+        return res.status(400).send("Bad Request: 'url' query parameter is missing.");
     }
     try {
-        console.log("Fetching Pdf", pdfUrl);
-        console.log("Fetching domain pdf", extractDomain(pdfUrl));
+        const decodedPdfUrl = decodeURIComponent(pdfUrl);
+        console.log("Fetching Pdf", decodedPdfUrl);
+        const domain = extractDomain(decodedPdfUrl);
+        console.log("Fetching domain pdf", domain);
 
         const whiteListedDomains = process.env.WHITE_LISTED_DOMAINS;
-        if (!whiteListedDomains.includes(extractDomain(pdfUrl))) {
-            console.log("Domain not white listed", extractDomain(pdfUrl));
+        if (!whiteListedDomains.includes(domain)) {
+            console.log("Domain not white listed", domain);
             return res.status(400).send("Domain not white listed");
         }
 
         console.log("whiteListedDomains", whiteListedDomains);
 
         const fetch = await import('node-fetch');
-        const response = await fetch.default(pdfUrl);
+        console.log("Attempting to fetch PDF from:", decodedPdfUrl);
+        const response = await fetch.default(decodedPdfUrl, {
+            timeout: 30000, // 30 second timeout for PDFs since they can be large
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch PDF, status: ${response.status}`);
+            return res.status(502).send(`Failed to fetch PDF: ${response.statusText}`);
+        }
 
         // ✅ Check if response is a PDF
         const contentType = response.headers.get("content-type");

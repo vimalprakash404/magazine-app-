@@ -9,6 +9,7 @@ const PdfViewer = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const pdfUrl = urlParams.get('pdfUrl');
   const mainUrl = "/api/pdf?url=";
+  const encodedPdfUrl = pdfUrl ? encodeURIComponent(pdfUrl) : null;
 
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
@@ -16,8 +17,14 @@ const PdfViewer = () => {
 
   useEffect(() => {
     async function checkWhitelist() {
+      if (!encodedPdfUrl) {
+        setStatus("error");
+        setErrorHeader("Invalid URL");
+        setErrorMessage("No URL provided.");
+        return;
+      }
       try {
-        const response = await axios.get(`/api/check-whitelisted?url=${encodeURIComponent(pdfUrl)}`);
+        const response = await axios.get(`/api/check-whitelisted?url=${encodedPdfUrl}`);
         if (response.status === 200) setStatus("ok");
       } catch (error) {
         const statusCode = error.response?.status;
@@ -43,7 +50,7 @@ const PdfViewer = () => {
       }
     }
     checkWhitelist();
-  }, [pdfUrl]);
+  }, [encodedPdfUrl]);
 
   if (status === "loading") {
     return (
@@ -67,8 +74,8 @@ const PdfViewer = () => {
     );
   }
 
-  if (isMob || isTablet) return <MobileView url={mainUrl + pdfUrl} />;
-  return <Test url={mainUrl + pdfUrl} />;
+  if (isMob || isTablet) return <MobileView url={mainUrl + encodedPdfUrl} />;
+  return <Test url={mainUrl + encodedPdfUrl} />;
 };
 
 const styles = {
