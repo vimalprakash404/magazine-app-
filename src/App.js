@@ -47,7 +47,7 @@ const PdfViewer = () => {
     return (
       <div style={styles.centerContainer}>
         <div style={styles.messageBox}>
-          <h1 style={styles.heading}>Checking Domain Whitelist...</h1>
+          <h1 style={styles.heading}>Loading File...</h1>
           <p style={styles.subText}>Please wait a moment.</p>
         </div>
       </div>
