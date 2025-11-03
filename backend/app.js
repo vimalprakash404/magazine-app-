@@ -62,13 +62,24 @@ app.get("/api/check-whitelisted/", async (req, res) => {
     
     // Some servers might not support HEAD requests properly, so let's use GET
     try {
-        console.log("Attempting to fetch URL:", decodedUrl);
-        response = await fetch.default(decodedUrl, {
+        // Manually encode the URL while preserving certain characters
+        const encodedUrl = decodedUrl
+            .replace(/%20/g, ' ')  // decode spaces first
+            .replace(/&/g, '%26')  // encode ampersands
+            .replace(/ /g, '%20'); // re-encode spaces
+            
+        console.log("Attempting to fetch URL:", encodedUrl);
+        response = await fetch.default(encodedUrl, {
             method: 'GET',
             timeout: 10000, // 10 second timeout
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
-            }
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+                'Accept': 'application/pdf,*/*',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            redirect: 'follow',
+            follow: 5
         });
 
         if (!response.ok) {
