@@ -12,6 +12,7 @@ const PdfViewer = () => {
 
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorHeader, setErrorHeader] = useState("Access Denied");
 
   useEffect(() => {
     async function checkWhitelist() {
@@ -27,6 +28,7 @@ const PdfViewer = () => {
           setErrorMessage("This domain is not allowed to display PDFs here.");
         } else if (statusCode === 415) {
           setStatus("error");
+          setErrorHeader("Unsupported File Type");
           setErrorMessage("Unsupported file type. Expected a PDF file.");
         } else if (statusCode === 502) {
           setStatus("error");
@@ -58,7 +60,7 @@ const PdfViewer = () => {
     return (
       <div style={styles.centerContainer}>
         <div style={styles.messageBox}>
-          <h1 style={{ ...styles.heading, color: "#e63946" }}>Access Denied</h1>
+          <h1 style={{ ...styles.heading, color: "#e63946" }}>{errorHeader}</h1>
           <p style={styles.subText}>{errorMessage}</p>
         </div>
       </div>
