@@ -180,8 +180,23 @@ app.get('/api/pdf', async (req, res) => {
         res.send(buffer);
 
     } catch (error) {
-        console.log("Error fetching Pdf  ", error);
-        res.status(500).send("Error fetching PDF")
+        console.error("Error fetching PDF:", {
+            message: error.message,
+            type: error.type,
+            code: error.code,
+            url: decodedPdfUrl
+        });
+        
+        let errorMessage = "Error fetching PDF";
+        if (error.code === 'ETIMEDOUT') {
+            errorMessage = "Request timed out while fetching the PDF";
+        } else if (error.code === 'ECONNREFUSED') {
+            errorMessage = "Unable to connect to the PDF server";
+        } else if (error.type === 'system') {
+            errorMessage = "Network error while fetching the PDF";
+        }
+        
+        res.status(500).send(errorMessage);
     }
 });
 app.use(express.static(path.join(__dirname, 'public')));
