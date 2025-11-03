@@ -29,8 +29,9 @@ app.get("/api/check-whitelisted/", async (req, res) => {
       return res.status(400).send("Bad Request: 'url' query parameter is missing.");
     }
 
-    // Decode the URL parameter
-    const decodedUrl = decodeURIComponent(urlToCheck);
+    // Decode the URL parameter and handle special characters
+    let decodedUrl = decodeURIComponent(urlToCheck);
+    decodedUrl = decodedUrl.replace(/&amp;/g, '&');
 
     // --- 2. Check Whitelist First ---
     // Get whitelist from env, provide a fallback empty string, and split into an array
@@ -108,7 +109,10 @@ app.get('/api/pdf', async (req, res) => {
         return res.status(400).send("Bad Request: 'url' query parameter is missing.");
     }
     try {
-        const decodedPdfUrl = decodeURIComponent(pdfUrl);
+        // Double decode to handle potentially double-encoded URLs
+        let decodedPdfUrl = decodeURIComponent(pdfUrl);
+        // Handle any remaining special characters
+        decodedPdfUrl = decodedPdfUrl.replace(/&amp;/g, '&');
         console.log("Fetching Pdf", decodedPdfUrl);
         const domain = extractDomain(decodedPdfUrl);
         console.log("Fetching domain pdf", domain);
@@ -123,10 +127,15 @@ app.get('/api/pdf', async (req, res) => {
 
         const fetch = await import('node-fetch');
         console.log("Attempting to fetch PDF from:", decodedPdfUrl);
-        const response = await fetch.default(decodedPdfUrl, {
+        // Create URL object to properly encode the URL while preserving special characters
+        const urlObject = new URL(decodedPdfUrl);
+        console.log("Attempting to fetch with encoded URL:", urlObject.href);
+        
+        const response = await fetch.default(urlObject.href, {
             timeout: 30000, // 30 second timeout for PDFs since they can be large
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+                'Accept': 'application/pdf,*/*'
             }
         });
 
@@ -139,7 +148,10 @@ app.get('/api/pdf', async (req, res) => {
         const contentType = response.headers.get("content-type");
         console.log("Fetched Content-Type:", contentType);
 
-        if (!contentType || !contentType.includes("application/pdf")) {
+        const validPdfTypes = ['application/pdf', 'binary/octet-stream', 'application/x-pdf', 'application/octet-stream'];
+        const isValidPdfType = validPdfTypes.some(type => contentType?.toLowerCase().includes(type.toLowerCase()));
+        
+        if (!contentType || !isValidPdfType) {
             console.log("Unsupported content type:", contentType);
             return res.status(415).send("Unsupported Media Type: Expected PDF");
         }
