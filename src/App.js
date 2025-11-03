@@ -1,90 +1,110 @@
-// App.js
-import Test from './components/PDFFlipbook';
-import React, { useEffect } from 'react';
-import MobileView  from "./components/MobileView";
-import {  Routes, Route, BrowserRouter } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { isMobile as isMob, isTablet } from 'react-device-detect';
 import axios from 'axios';
+import Test from './components/PDFFlipbook';
+import MobileView from './components/MobileView';
 
-// Define a component to display the PDF
 const PdfViewer = () => {
-  // Access the URL parameter using useParams hook
   const urlParams = new URLSearchParams(window.location.search);
   const pdfUrl = urlParams.get('pdfUrl');
-  const mainUrl=  "/api/pdf?url="; 
-  const [isWhiteListed , setIsWhiteListed] = React.useState(true)
+  const mainUrl = "/api/pdf?url=";
 
-  async function getWhiteListed(){
-    try{
-      const response =await axios.get("/api/check-whitelisted?url="+pdfUrl) ;
-      console.log(response.data)
-      setIsWhiteListed(true)
-    }
-    catch (error){
-      console.log(error.response)
-      if(error.response.status === 400) setIsWhiteListed(false)    
-      }
-  }
+  const [status, setStatus] = useState("loading");
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
-   getWhiteListed()
-  } , [])
-  if (isWhiteListed === false){
-    document.body.style.backgroundColor = "white";
-    const containerStyle = {
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#f0f4f8',
-      fontFamily: 'Arial, sans-serif',
-    };
-  
-    const messageStyle = {
-      padding: '20px 40px',
-      backgroundColor: '#fff',
-      border: '1px solid #ddd',
-      borderRadius: '10px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      textAlign: 'center',
-      color: '#333',
-    };
-  
-    const headingStyle = {
-      margin: '0',
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#e63946',
-    };
-  
+    async function checkWhitelist() {
+      try {
+        const response = await axios.get(`/api/check-whitelisted?url=${encodeURIComponent(pdfUrl)}`);
+        if (response.status === 200) setStatus("ok");
+      } catch (error) {
+        const statusCode = error.response?.status;
+        console.log("Whitelist check error:", statusCode, error.response?.data);
+        
+        if (statusCode === 403) {
+          setStatus("not_whitelisted");
+          setErrorMessage("This domain is not allowed to display PDFs here.");
+        } else if (statusCode === 415) {
+          setStatus("error");
+          setErrorMessage("Unsupported file type. Expected a PDF file.");
+        } else if (statusCode === 502) {
+          setStatus("error");
+          setErrorMessage("The upstream server is not responding.");
+        } else if (statusCode === 400) {
+          setStatus("error");
+          setErrorMessage("Invalid or missing URL parameter.");
+        } else {
+          setStatus("error");
+          setErrorMessage("An unexpected error occurred.");
+        }
+      }
+    }
+    checkWhitelist();
+  }, [pdfUrl]);
+
+  if (status === "loading") {
     return (
-      <div style={containerStyle}>
-        <div style={messageStyle}>
-          <h1 style={headingStyle}>This Domain is Not White Listed</h1>
+      <div style={styles.centerContainer}>
+        <div style={styles.messageBox}>
+          <h1 style={styles.heading}>Checking Domain Whitelist...</h1>
+          <p style={styles.subText}>Please wait a moment.</p>
         </div>
       </div>
     );
   }
-  if (isMob) {
-    return <MobileView url={mainUrl+pdfUrl}/>
+
+  if (status === "not_whitelisted" || status === "error") {
+    return (
+      <div style={styles.centerContainer}>
+        <div style={styles.messageBox}>
+          <h1 style={{ ...styles.heading, color: "#e63946" }}>Access Denied</h1>
+          <p style={styles.subText}>{errorMessage}</p>
+        </div>
+      </div>
+    );
   }
-  else if (isTablet){
-    return <MobileView url={mainUrl+pdfUrl}/>
-  }
-  else {
-    return <Test url={mainUrl+pdfUrl}/>
-  }
+
+  if (isMob || isTablet) return <MobileView url={mainUrl + pdfUrl} />;
+  return <Test url={mainUrl + pdfUrl} />;
 };
 
-// Define your main App component
-const App = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="pdf/" element={<PdfViewer/>}/>
-      </Routes>
-   
-    </BrowserRouter>
-  );
+const styles = {
+  centerContainer: {
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    fontFamily: "'Inter', sans-serif",
+  },
+  messageBox: {
+    backgroundColor: "#ffffff",
+    padding: "40px 60px",
+    borderRadius: "16px",
+    boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+    textAlign: "center",
+    maxWidth: "500px",
+  },
+  heading: {
+    margin: 0,
+    fontSize: "1.8rem",
+    fontWeight: "600",
+    color: "#2563eb",
+  },
+  subText: {
+    marginTop: "12px",
+    fontSize: "1rem",
+    color: "#555",
+  },
 };
+
+const App = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="pdf/" element={<PdfViewer />} />
+    </Routes>
+  </BrowserRouter>
+);
 
 export default App;
