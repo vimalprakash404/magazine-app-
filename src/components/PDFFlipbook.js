@@ -15,7 +15,33 @@ import { isMobile as isMob, isTablet, isBrowser } from 'react-device-detect';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const Page = React.forwardRef(({ pageNumber, width }, ref) => {
+// Number of pages to render around the current page
+const PAGE_RENDER_BUFFER = 3;
+
+const Page = React.forwardRef(({ pageNumber, width, renderContent }, ref) => {
+  if (!renderContent) {
+    // Lightweight placeholder — no PDF canvas, minimal DOM cost
+    return (
+      <div ref={ref} className="page">
+        <div
+          className="page-content"
+          style={{
+            width: width,
+            height: Math.floor(width * 1.414),
+            backgroundColor: "#f0f0f0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.2rem",
+            color: "#bbb",
+          }}
+        >
+          {pageNumber}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={ref} className="page">
       <ReactPdfPage pageNumber={pageNumber} ref={ref} className={"page-content"} width={width} />
@@ -30,7 +56,6 @@ function Test({ url }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [documentLoaded, setDocumentLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [pageBuffer, setPageBuffer] = useState(4);
   const [sliderValue, setSliderValue] = useState(1);
   const [tooltipPosition, setTooltipPosition] = useState({ left: 0, top: 0 });
   const pageFlipRef = useRef(null);
@@ -59,13 +84,6 @@ function Test({ url }) {
   function to  toggle to full screen 
  
  */
-  const incrementBuffer = () => {
-    if (pageBuffer + 4 >= numPages) {
-      setPageBuffer(numPages);
-    } else {
-      setPageBuffer(pageBuffer + 4);
-    }
-  };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -77,7 +95,6 @@ function Test({ url }) {
     if (currentPage < numPages) {
       setCurrentPage(currentPage + 1);
       pageFlipRef.current.pageFlip().flipNext();
-      incrementBuffer();
     }
   };
 
@@ -100,15 +117,6 @@ function Test({ url }) {
     const value = parseInt(event.target.value, 10);
     setSliderValue(value);
     handleChangePage(value);
-    if (value > pageBuffer){
-      if(value+4 >= numPages){
-        setPageBuffer(numPages);
-      }
-      else {
-        setPageBuffer(value);
-      }
-    }
-    
   };
 
 
@@ -132,7 +140,6 @@ function Test({ url }) {
   const onPageChange = () => {
     setCurrentPage(pageFlipRef.current.pageFlip().getCurrentPageIndex() + 1);
     setSliderValue(pageFlipRef.current.pageFlip().getCurrentPageIndex() + 1);
-    incrementBuffer();
   };
 
   const zoomIn = () => {
@@ -198,6 +205,11 @@ function Test({ url }) {
   }
   const [toolbarHider, setToolBarHider] = useState(false)
 
+  // Helper: determine if a page should be fully rendered or show a placeholder
+  const shouldRenderPage = (pageNum) => {
+    return Math.abs(pageNum - currentPage) <= PAGE_RENDER_BUFFER;
+  };
+
   const width = isBrowser ? 600 : isTablet  ? 500 : isMob ? 350 : 600 ;
   const hight =    isBrowser ? 800 : isTablet  ? 500 : isMob ? 500 : 700 ;
   return (
@@ -227,7 +239,7 @@ function Test({ url }) {
                     {numPages &&
                       Array.from(Array(numPages), (e, i) => {
                         const pageNum = i + 1;
-                        return <Page key={pageNum} pageNumber={pageNum} width={width} />;
+                        return <Page key={pageNum} pageNumber={pageNum} width={width} renderContent={shouldRenderPage(pageNum)} />;
                       })}
                   </HTMLFlipBook>
                 </div>

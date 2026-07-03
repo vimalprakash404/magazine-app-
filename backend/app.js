@@ -51,14 +51,38 @@ app.get('/api/pdf', async(req , res )=>{
         }
         console.log("whiteListedDomains  ", whiteListedDomains );
         const fetch = await import('node-fetch')
-        const response = await fetch.default(pdfUrl);
-        const buffer = await response.buffer();
+        const response = await fetch.default(pdfUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+            redirect: 'follow',
+        });
+
+        if (!response.ok) {
+            console.log("Upstream returned status:", response.status, response.statusText);
+            return res.status(response.status).send(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
+        }
+
+        // Stream the PDF directly instead of buffering into memory
         res.set('Content-Type', 'application/pdf');
-        res.send(buffer);
+        const contentLength = response.headers.get('content-length');
+        if (contentLength) {
+            res.set('Content-Length', contentLength);
+        }
+        response.body.pipe(res);
+
+        response.body.on('error', (err) => {
+            console.log("Stream error  ", err);
+            if (!res.headersSent) {
+                res.status(500).send("Error streaming PDF");
+            }
+        });
     }
     catch(error){
         console.log("Error fetching Pdf  ", error );
-        res.status(500).send("Error fetching PDF" )
+        if (!res.headersSent) {
+            res.status(500).send("Error fetching PDF");
+        }
     }
 });
 app.use(express.static(path.join(__dirname, 'public')));
@@ -66,15 +90,16 @@ app.get("/api/magazine/:name",(req, res)=>{
     const name  = req.params.name; 
     const  pdfPath   = path.join(__dirname , `./public/${name}.pdf`);
 
-    fs.readFile(pdfPath, (err, data) => {
+    // Use sendFile directly — it streams from disk without loading into memory
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename=sample.pdf');
+    res.sendFile(pdfPath, (err) => {
         if (err) {
             console.error(err);
-            return res.status(500).send('Could not load PDF file.');
+            if (!res.headersSent) {
+                res.status(500).send('Could not load PDF file.');
+            }
         }
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline; filename=sample.pdf');
-        res.sendFile(pdfPath);
     });
 })
 
